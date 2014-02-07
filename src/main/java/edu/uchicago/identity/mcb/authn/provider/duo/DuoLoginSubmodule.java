@@ -17,39 +17,119 @@
 
 package edu.uchicago.identity.mcb.authn.provider.duo;
 
+import com.duosecurity.DuoWeb;
+import edu.internet2.middleware.assurance.mcb.authn.provider.JAASLoginSubmodule;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBLoginServlet;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBSubmodule;
+import edu.internet2.middleware.assurance.mcb.authn.provider.MCBUsernamePrincipal;
 import edu.internet2.middleware.shibboleth.idp.authn.AuthenticationException;
+import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.velocity.VelocityContext;
+import org.opensaml.xml.util.DatatypeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * This sub-module handles DUO authentication for the Multi-Context Broker
  * 
  * @author David Langenberg
  */
 public class DuoLoginSubmodule implements MCBSubmodule{
 
+	private final Logger log = LoggerFactory.getLogger(DuoLoginSubmodule.class);
 	
+	private String beanName = null;
 	
+	private String aKey;
+	private String iKey;
+	private String sKey;
+	private String host;
+	private String loginPage;
+	
+	/**
+	 * Constructor
+	 * @param aKey aKey from duo
+	 * @param iKey iKey from duo
+	 * @param sKey sKey from duo
+	 * @param host host from duo
+	 * @param loginPage velocity template containing DUO page
+	 */
+	public DuoLoginSubmodule(String aKey, String iKey, String sKey, String host, String loginPage){
+		aKey = this.aKey;
+		iKey = this.iKey;
+		sKey = this.sKey;
+		host = this.host;
+		
+		log.debug("akey: {}, iKey: {}, sKey: {}, host: {}",aKey,iKey,sKey,host);
+	}
+	
+	/**
+	 * Display the Duo login screen
+	 * 
+	 * @param servlet
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws AuthenticationException
+	 * @throws LoginException 
+	 */
 	public boolean displayLogin(MCBLoginServlet servlet, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, LoginException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		//this module must be invoked after a principal has already been established
+		MCBUsernamePrincipal principal = (MCBUsernamePrincipal) request.getSession().getAttribute(LoginHandler.PRINCIPAL_KEY);
+		
+		log.debug("creating signed Duo request for principal: {}", principal);
+		
+		String req = DuoWeb.signRequest(iKey, sKey, aKey, principal.getName());
+		log.debug("Duo request: {}", req);
+		
+		VelocityContext vCtx = new VelocityContext();
+		vCtx.put("duoRequest", req);
+		
+		log.debug("Displaying Velocity Duo template [{}]",loginPage);
+		servlet.doVelocity(request, response, loginPage, vCtx);
+		
+		return true;
 	}
 
+	/**
+	 * Process the response from the Login Screen
+	 * @param servlet
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws AuthenticationException
+	 * @throws LoginException 
+	 */
 	public boolean processLogin(MCBLoginServlet servlet, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, LoginException {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		String sig_response = DatatypeHelper.safeTrimOrNullString(request.getParameter("sig_response"));
+		log.debug("Signed response from Duo is: {}", sig_response);
+		
+		String result = DuoWeb.verifyResponse(iKey, sKey, aKey, sig_response);
+		log.debug("Result of the verification of the response from Duo is: {}",result);
+		
+		MCBUsernamePrincipal principal = (MCBUsernamePrincipal) request.getSession().getAttribute(LoginHandler.PRINCIPAL_KEY);
+		
+		if(result.equalsIgnoreCase(principal.getName())){
+			return true;
+		}else {
+			principal.setFailedLogin("unable to verify Duo");
+			return false;
+		}
 	}
 
 	public void init() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		log.info("Duo Login Submodule initialized");
 	}
 
 	public String getBeanName() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return beanName;
 	}
 
 	public void setBeanName(String string) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		beanName = string;
 	}
 	
 }
