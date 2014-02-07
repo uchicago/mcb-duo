@@ -58,12 +58,13 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 	 * @param loginPage velocity template containing DUO page
 	 */
 	public DuoLoginSubmodule(String aKey, String iKey, String sKey, String host, String loginPage){
-		aKey = this.aKey;
-		iKey = this.iKey;
-		sKey = this.sKey;
-		host = this.host;
+		this.aKey = aKey;
+		this.iKey = iKey;
+		this.sKey = sKey;
+		this.host = host;
+		this.loginPage = loginPage;
 		
-		log.debug("akey: {}, iKey: {}, sKey: {}, host: {}",aKey,iKey,sKey != null ? "XXXXXXXXXX" : sKey,host);
+		log.debug("Config: akey: {}, iKey: {}, sKey: {}, host: {}, login page: {}",aKey,iKey,sKey != null ? "XXXXXXXXXX" : sKey,host, loginPage);
 	}
 	
 	/**
@@ -79,8 +80,8 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 	public boolean displayLogin(MCBLoginServlet servlet, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, LoginException {
 		//this module must be invoked after a principal has already been established
 		MCBUsernamePrincipal principal = (MCBUsernamePrincipal) request.getSession().getAttribute(LoginHandler.PRINCIPAL_KEY);
-		
-		if(principal == null || principal.getName() == null || principal.getName().equals("")){
+		log.debug("principal name is: {}", principal.getName());
+		if(principal == null || principal.getName() == null || principal.getName().equals("") || principal.getName().equals("[principal]")){
 			log.error("The DuoLoginSubmodule may not be invoked unless the user already has authenticated using another method.  No user principal detected.");
 			return false;
 		}
