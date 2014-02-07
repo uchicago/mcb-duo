@@ -63,7 +63,7 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 		sKey = this.sKey;
 		host = this.host;
 		
-		log.debug("akey: {}, iKey: {}, sKey: {}, host: {}",aKey,iKey,sKey,host);
+		log.debug("akey: {}, iKey: {}, sKey: {}, host: {}",aKey,iKey,sKey != null ? "XXXXXXXXXX" : sKey,host);
 	}
 	
 	/**
@@ -80,6 +80,11 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 		//this module must be invoked after a principal has already been established
 		MCBUsernamePrincipal principal = (MCBUsernamePrincipal) request.getSession().getAttribute(LoginHandler.PRINCIPAL_KEY);
 		
+		if(principal == null || principal.getName() == null || principal.getName().equals("")){
+			log.error("The DuoLoginSubmodule may not be invoked unless the user already has authenticated using another method.  No user principal detected.");
+			return false;
+		}
+		
 		log.debug("creating signed Duo request for principal: {}", principal);
 		
 		String req = DuoWeb.signRequest(iKey, sKey, aKey, principal.getName());
@@ -87,6 +92,7 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 		
 		VelocityContext vCtx = new VelocityContext();
 		vCtx.put("duoRequest", req);
+		vCtx.put("duoHost",host);
 		
 		log.debug("Displaying Velocity Duo template [{}]",loginPage);
 		servlet.doVelocity(request, response, loginPage, vCtx);
