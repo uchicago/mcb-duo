@@ -29,3 +29,22 @@ to edit the *mcb-spring.xml* file and add the following block.
         <!-- duo login template -->
         <constructor-arg index="4" value="duo.vm" />
     </bean>
+
+Next you need to edit the *mcb.Configuration* bean and add a 
+
+    <ref bean="mcb.duo" />
+
+Next you need to edit the *multi-context-broker.xml* file and add the duo method to the authmethods:
+
+    <method name="duo" bean="mcb.duo">
+            Duo
+    </method> 
+
+Finally, map it to a context in the authnContexts block:
+
+     <context name="duo" method="duo">
+                <allowedContexts>
+                </allowedContexts>
+        </context>
+
+### Note: you need to ensure that you do NOT specify duo as a default initial context.  In order to function, the user must already have established their identity to the MCB via another context.
