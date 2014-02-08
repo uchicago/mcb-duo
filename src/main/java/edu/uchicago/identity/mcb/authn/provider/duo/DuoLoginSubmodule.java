@@ -18,7 +18,6 @@
 package edu.uchicago.identity.mcb.authn.provider.duo;
 
 import com.duosecurity.DuoWeb;
-import edu.internet2.middleware.assurance.mcb.authn.provider.JAASLoginSubmodule;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBLoginServlet;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBSubmodule;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBUsernamePrincipal;
@@ -85,6 +84,8 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 			log.error("The DuoLoginSubmodule may not be invoked unless the user already has authenticated using another method.  No user principal detected.");
 			return false;
 		}
+		//this is required so that we don't keep looping around -- but why?
+		request.getSession().removeAttribute(MCBLoginServlet.UPGRADE_AUTH);
 		
 		log.debug("creating signed Duo request for principal: {}", principal);
 		
