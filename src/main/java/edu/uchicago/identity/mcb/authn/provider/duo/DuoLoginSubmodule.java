@@ -127,7 +127,7 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 	}
 
 	public void init() {
-		log.info("Duo Login Submodule initialized");
+		log.info("Duo Login Submodule version {} initialized", getClass().getPackage().getImplementationVersion());
 	}
 
 	public String getBeanName() {
