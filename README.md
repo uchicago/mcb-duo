@@ -6,7 +6,7 @@ Shibboleth Multi-Context Broker Duo Authentication.  This is a plugin for the
 It provides support for [DUO](http://www.duosecurity.com/) second factor authentication.
 
 # Requirements
-This module requires at least multi-context-broker-1.0.1.jar or later.
+This module requires at least multi-context-broker-1.1.2.jar or later.
 
 # Installation
 1. Copy the jar file to your shibboleth-source-dir/lib.  
