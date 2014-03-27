@@ -43,11 +43,24 @@ Next you need to edit the *multi-context-broker.xml* file and add the duo method
             Duo
     </method> 
 
-Finally, map it to a context in the authnContexts block:
+Then, map it to a context in the authnContexts block:
 
      <context name="duo" method="duo">
                 <allowedContexts>
                 </allowedContexts>
         </context>
+
+Finally, edit your *handler.xml* file and add the duo context as an AuthenticationMethod to your MCB LoginHandler declaration:
+
+     <LoginHandler xsi:type="mcb:MultiContextBroker" authenticationDuration="PT8H0M0.000S" previousSession="true"
+    depends-on="mcb.Configuration">
+       <AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</AuthenticationMethod>
+       <AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthenticationMethod>
+       <AuthenticationMethod>http://id.incommon.org/assurance/silver</AuthenticationMethod>
+       <AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</AuthenticationMethod>
+       <AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PreviousSession</AuthenticationMethod>
+       <AuthenticationMethod>duo</AuthenticationMethod>
+    </LoginHandler>
+
 
 ### Note: you need to ensure that you do NOT specify duo as a default initial context.  In order to function, the user must already have established their identity to the MCB via another context.
