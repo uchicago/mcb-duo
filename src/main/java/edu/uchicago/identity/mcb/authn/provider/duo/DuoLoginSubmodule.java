@@ -110,14 +110,20 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 	 * @throws LoginException 
 	 */
 	public boolean processLogin(MCBLoginServlet servlet, HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, LoginException {
+		MCBUsernamePrincipal principal = (MCBUsernamePrincipal) request.getSession().getAttribute(LoginHandler.PRINCIPAL_KEY);
+
 		String sig_response = DatatypeHelper.safeTrimOrNullString(request.getParameter("sig_response"));
 		log.debug("Signed response from Duo is: {}", sig_response);
 		
+		if(sig_response == null){
+			log.error("Received null response from Duo.  User possibly has an existing authN window open in another tab.");
+			principal.setFailedLogin("Received null response from Duo.");
+			return false;
+		}
+		
 		String result = DuoWeb.verifyResponse(iKey, sKey, aKey, sig_response);
 		log.debug("Result of the verification of the response from Duo is: {}",result);
-		
-		MCBUsernamePrincipal principal = (MCBUsernamePrincipal) request.getSession().getAttribute(LoginHandler.PRINCIPAL_KEY);
-		
+
 		if(result.equalsIgnoreCase(principal.getName())){
 			return true;
 		}else {
