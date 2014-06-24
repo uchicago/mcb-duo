@@ -45,7 +45,7 @@ Next you need to edit the *multi-context-broker.xml* file and add the duo method
 
 Then, map it to a context in the authnContexts block:
 
-     <context name="duo" method="duo">
+     <context name="http://yourinstitution.edu/duo" method="duo">
                 <allowedContexts>
                 </allowedContexts>
         </context>
@@ -59,7 +59,7 @@ Finally, edit your *handler.xml* file and add the duo context as an Authenticati
        <AuthenticationMethod>http://id.incommon.org/assurance/silver</AuthenticationMethod>
        <AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</AuthenticationMethod>
        <AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PreviousSession</AuthenticationMethod>
-       <AuthenticationMethod>duo</AuthenticationMethod>
+       <AuthenticationMethod>http://yourinstitution.edu/duo</AuthenticationMethod>
     </LoginHandler>
 
 
