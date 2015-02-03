@@ -10,8 +10,9 @@ This module requires at least multi-context-broker-1.1.2.jar or later.
 
 # Installation
 1. Copy the jar file to your shibboleth-source-dir/lib.  
-2. run install.sh
-3. Copy the *duo.vm* file to the directory holding the rest of your MCB velocity templates
+2. Copy the contents of the `web` directory (which should just be the `duo` subdirectory) to your shibboleth-source-dir/webapps directory.
+3. run install.sh
+4. Copy the *duo.vm* file to the directory holding the rest of your MCB velocity templates
 
 # Configuration
 

@@ -29,6 +29,31 @@
 		<outputDirectory>/</outputDirectory>
 		<filtered>false</filtered>
 	</file>
+	<file>
+		<source>src/main/resources/Duo-Web-v1.bundled.js</source>
+		<outputDirectory>/web/duo</outputDirectory>
+		<filtered>false</filtered>
+	</file>
+	<file>
+		<source>src/main/resources/Duo-Web-v1.bundled.min.js</source>
+		<outputDirectory>/web/duo</outputDirectory>
+		<filtered>false</filtered>
+	</file>
+	<file>
+		<source>src/main/resources/Duo-Web-v1.js</source>
+		<outputDirectory>/web/duo</outputDirectory>
+		<filtered>false</filtered>
+	</file>
+	<file>
+		<source>src/main/resources/Duo-Web-v1.min.js</source>
+		<outputDirectory>/web/duo</outputDirectory>
+		<filtered>false</filtered>
+	</file>
+	<file>
+		<source>src/main/resources/duo.css</source>
+		<outputDirectory>/web/duo</outputDirectory>
+		<filtered>false</filtered>
+	</file>
   </files>
   <fileSets>
 	  <fileSet>
