@@ -17,12 +17,16 @@
 
 package edu.uchicago.identity.mcb.authn.provider.duo;
 
-import com.duosecurity.DuoWeb;
+import com.duosecurity.duoweb.DuoWeb;
+import com.duosecurity.duoweb.DuoWebException;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBLoginServlet;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBSubmodule;
 import edu.internet2.middleware.assurance.mcb.authn.provider.MCBUsernamePrincipal;
 import edu.internet2.middleware.shibboleth.idp.authn.AuthenticationException;
 import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,11 +46,11 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 	
 	private String beanName = null;
 	
-	private String aKey;
-	private String iKey;
-	private String sKey;
-	private String host;
-	private String loginPage;
+	private final String aKey;
+	private final String iKey;
+	private final String sKey;
+	private final String host;
+	private final String loginPage;
 	
 	/**
 	 * Constructor
@@ -121,7 +125,23 @@ public class DuoLoginSubmodule implements MCBSubmodule{
 			return false;
 		}
 		
-		String result = DuoWeb.verifyResponse(iKey, sKey, aKey, sig_response);
+		String result = null;
+		try{
+			result = DuoWeb.verifyResponse(iKey, sKey, aKey, sig_response);
+		}catch(DuoWebException dwe){
+			log.warn(dwe.getMessage(),dwe);
+			throw new AuthenticationException(dwe);
+		}catch(NoSuchAlgorithmException nsae){
+			log.warn(nsae.getMessage(),nsae);
+			throw new AuthenticationException(nsae);
+		}catch(InvalidKeyException ike){
+			log.warn(ike.getMessage(),ike);
+			throw new AuthenticationException(ike);
+		}catch(IOException ioe){
+			log.error(ioe.getMessage(), ioe);
+			throw new RuntimeException(ioe);
+		}
+		
 		log.debug("Result of the verification of the response from Duo is: {}",result);
 
 		if(result.equalsIgnoreCase(principal.getName())){
